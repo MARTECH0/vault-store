@@ -379,11 +379,12 @@ export default function AdminDashboard() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   <option value="">Select a category</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Accessories">Accessories</option>
-                  <option value="Boxes">Boxes</option>
-                  <option value="Packs">Packs</option>
-                  <option value="Singles">Singles</option>
+                  <option value="151">151</option>
+                  <option value="Black Bolt">Black Bolt</option>
+                  <option value="White Flare">White Flare</option>
+                  <option value="Prismatic">Prismatic</option>
+                  <option value="Stellar Crown">Stellar Crown</option>
+                  <option value="Surging Sparks">Surging Sparks</option>
                 </select>
               </div>
 
