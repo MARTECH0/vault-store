@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X, Crown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,13 +13,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-white tracking-tight">
-              ELITE TCG VAULT
-            </span>
-            <div className="bg-yellow-500 rounded-full p-1">
-              <Crown className="w-4 h-4 text-white" />
-            </div>
+          <Link href="/" className="relative w-40 h-40 overflow-hidden">
+            <Image src="/logo.png" alt="Elite TCG Vault logo" fill sizes="160px" className="object-contain" />
           </Link>
           
           {/* Desktop Navigation */}
