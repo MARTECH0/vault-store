@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --color-primary: #1a237e;
+  --color-primary-dark: #0d1442;
+  --color-primary-light: #3949ab;
+  --color-whatsapp: #25D366;
+  --color-background: #FCF9F2;
+}
+
+* {
+  font-family: var(--font-inter), sans-serif;
+}
+
+body {
+  @apply bg-[#FCF9F2] text-gray-900 antialiased;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
