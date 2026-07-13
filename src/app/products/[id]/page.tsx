@@ -41,6 +41,7 @@ const mockProducts: Record<string, any> = {
 };
 
 async function getProduct(id: string) {
+  console.log('Fetching product with ID:', id);
   try {
     const numericId = parseInt(id);
     if (isNaN(numericId)) {
@@ -56,19 +57,25 @@ async function getProduct(id: string) {
 
     if (error) {
       console.error('Supabase error fetching product:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       // Only fall back to mock data if it's a connection error, not 404
       if (error.code === 'PGRST116') {
         // Record not found - return null to show 404
+        console.log('Product not found in database');
         return null;
       }
       // For other errors, try mock data
+      console.log('Falling back to mock data due to error');
       return mockProducts[id] || null;
     }
 
+    console.log('Product fetched successfully:', data);
     return data;
   } catch (e) {
     console.error('Exception fetching product:', e);
     // Fall back to mock data if Supabase fails
+    console.log('Falling back to mock data due to exception');
     return mockProducts[id] || null;
   }
 }
@@ -107,17 +114,24 @@ async function getRelatedProducts(currentId: string) {
 }
 
 export default async function ProductPage({ params }: { params: { id: string } }) {
-  const product = await getProduct(params.id);
-  const relatedProducts = await getRelatedProducts(params.id);
+  // Await params in Next.js 15+
+  const resolvedParams = await params;
+  console.log('ProductPage called with params:', resolvedParams);
+  console.log('Product ID from URL:', resolvedParams.id);
+  
+  const product = await getProduct(resolvedParams.id);
+  const relatedProducts = await getRelatedProducts(resolvedParams.id);
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952';
 
   if (!product) {
+    console.log('Product is null, showing 404 page');
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Product Not Found</h1>
+            <p className="text-gray-600 mb-4">Product ID: {resolvedParams.id}</p>
             <a href="/shop" className="text-[#0B132B] hover:underline">
               Return to Shop
             </a>
@@ -128,6 +142,16 @@ export default async function ProductPage({ params }: { params: { id: string } }
     );
   }
 
+  // Construct proper Supabase Storage URL if image_url is just a filename
+  let imageUrl = product.image_url;
+  if (product.image_url && !product.image_url.startsWith('http')) {
+    // If it's just a filename, construct the full Supabase Storage URL
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) {
+      imageUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${product.image_url}`;
+    }
+  }
+
   const formattedProduct = {
     id: product.id,
     title: product.title,
@@ -136,7 +160,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     description: product.description || `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. This item is sourced directly from Japan and verified for authenticity.`,
     availability: 'In Stock',
     condition: '100% Authentic Japanese Import',
-    imageUrl: product.image_url,
+    imageUrl: imageUrl,
   };
 
   const formattedRelatedProducts = relatedProducts.map((p: any) => ({

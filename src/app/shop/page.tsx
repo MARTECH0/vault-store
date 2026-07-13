@@ -35,6 +35,7 @@ export default function Shop() {
 
   useEffect(() => {
     async function fetchProducts() {
+      console.log('Fetching products from Supabase...');
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -42,7 +43,15 @@ export default function Shop() {
 
       if (error) {
         console.error('Error fetching products:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
       } else {
+        console.log('Products fetched successfully:', data);
+        console.log('Number of products:', data?.length);
+        if (data && data.length > 0) {
+          console.log('First product ID:', data[0].id);
+          console.log('First product title:', data[0].title);
+        }
         setProducts(data || []);
         setFilteredProducts(data || []);
       }
@@ -105,6 +114,7 @@ Please let me know if this is available and how I can proceed with the payment. 
   const handleDetails = (e: React.MouseEvent, productId: number) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Navigating to product details for ID:', productId);
     router.push(`/products/${productId}`);
   };
 
