@@ -112,7 +112,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     title: product.title,
     subtitle: product.category,
     price: `$${product.price}`,
-    description: `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. This item is sourced directly from Japan and verified for authenticity.`,
+    description: product.description || `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. This item is sourced directly from Japan and verified for authenticity.`,
     availability: 'In Stock',
     condition: '100% Authentic Japanese Import',
     imageUrl: product.image_url,

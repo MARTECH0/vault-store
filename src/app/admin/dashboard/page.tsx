@@ -14,6 +14,7 @@ interface Product {
   category: string;
   tag: string;
   image_url: string;
+  description?: string;
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ export default function AdminDashboard() {
     category: '',
     tag: '',
     image_url: '',
+    description: '',
   });
   const router = useRouter();
 
@@ -65,7 +67,7 @@ export default function AdminDashboard() {
 
   const handleAddProduct = () => {
     setEditingProduct(null);
-    setFormData({ title: '', price: '', category: '', tag: '', image_url: '' });
+    setFormData({ title: '', price: '', category: '', tag: '', image_url: '', description: '' });
     setShowModal(true);
   };
 
@@ -77,6 +79,7 @@ export default function AdminDashboard() {
       category: product.category,
       tag: product.tag,
       image_url: product.image_url,
+      description: product.description || '',
     });
     setShowModal(true);
   };
@@ -103,6 +106,7 @@ export default function AdminDashboard() {
       category: formData.category,
       tag: formData.tag,
       image_url: formData.image_url,
+      description: formData.description,
     };
 
     if (editingProduct) {
@@ -421,6 +425,20 @@ export default function AdminDashboard() {
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="https://example.com/image.jpg"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  placeholder="Enter a detailed description of the product..."
                 />
               </div>
 

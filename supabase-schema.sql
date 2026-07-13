@@ -6,6 +6,7 @@ CREATE TABLE products (
   category TEXT NOT NULL,
   tag TEXT NOT NULL,
   image_url TEXT NOT NULL,
+  description TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
