@@ -42,19 +42,32 @@ const mockProducts: Record<string, any> = {
 
 async function getProduct(id: string) {
   try {
+    const numericId = parseInt(id);
+    if (isNaN(numericId)) {
+      console.error('Invalid product ID:', id);
+      return null;
+    }
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .eq('id', parseInt(id))
+      .eq('id', numericId)
       .single();
 
     if (error) {
-      // Fall back to mock data if Supabase fails
+      console.error('Supabase error fetching product:', error);
+      // Only fall back to mock data if it's a connection error, not 404
+      if (error.code === 'PGRST116') {
+        // Record not found - return null to show 404
+        return null;
+      }
+      // For other errors, try mock data
       return mockProducts[id] || null;
     }
 
     return data;
   } catch (e) {
+    console.error('Exception fetching product:', e);
     // Fall back to mock data if Supabase fails
     return mockProducts[id] || null;
   }
@@ -62,22 +75,30 @@ async function getProduct(id: string) {
 
 async function getRelatedProducts(currentId: string) {
   try {
+    const numericId = parseInt(currentId);
+    if (isNaN(numericId)) {
+      console.error('Invalid product ID for related products:', currentId);
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
-      .neq('id', parseInt(currentId))
+      .neq('id', numericId)
       .limit(4)
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Supabase error fetching related products:', error);
       // Fall back to mock data if Supabase fails
       return Object.values(mockProducts)
-        .filter((p) => p.id !== parseInt(currentId))
+        .filter((p) => p.id !== numericId)
         .slice(0, 4);
     }
 
     return data || [];
   } catch (e) {
+    console.error('Exception fetching related products:', e);
     // Fall back to mock data if Supabase fails
     return Object.values(mockProducts)
       .filter((p) => p.id !== parseInt(currentId))
