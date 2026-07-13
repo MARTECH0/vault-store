@@ -9,6 +9,7 @@ interface Product {
   title: string;
   price: string;
   tag: string;
+  image_url?: string;
 }
 
 interface RecommendationGridProps {
@@ -39,6 +40,16 @@ Please let me know if this is available and how I can proceed with the payment. 
     router.push(`/products/${productId}`);
   };
 
+  const getImageUrl = (imageUrl: string | undefined) => {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) {
+      return `${supabaseUrl}/storage/v1/object/public/product-images/${imageUrl}`;
+    }
+    return null;
+  };
+
   return (
     <section className="py-16 bg-[#F5F5FA]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,8 +63,12 @@ Please let me know if this is available and how I can proceed with the payment. 
             <Link href={`/products/${product.id}`} key={product.id}>
               <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
                 <div className="text-xs font-semibold text-[#0B132B] uppercase mb-2">{product.tag}</div>
-                <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center">
-                  <Sparkles className="w-12 h-12 text-gray-400" />
+                <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                  {getImageUrl(product.image_url) ? (
+                    <img src={getImageUrl(product.image_url)!} alt={product.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Sparkles className="w-12 h-12 text-gray-400" />
+                  )}
                 </div>
                 <h3 className="font-semibold text-[#0B132B] mb-2">{product.title}</h3>
                 <p className="text-lg font-bold text-[#0B132B] mb-3">{product.price}</p>

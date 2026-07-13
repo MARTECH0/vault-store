@@ -163,12 +163,24 @@ export default async function ProductPage({ params }: { params: { id: string } }
     imageUrl: imageUrl,
   };
 
-  const formattedRelatedProducts = relatedProducts.map((p: any) => ({
-    id: p.id,
-    title: p.title,
-    price: `$${p.price}`,
-    tag: p.tag || 'New',
-  }));
+  const formattedRelatedProducts = relatedProducts.map((p: any) => {
+    // Construct proper Supabase Storage URL if image_url is just a filename
+    let imageUrl = p.image_url;
+    if (p.image_url && !p.image_url.startsWith('http')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (supabaseUrl) {
+        imageUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${p.image_url}`;
+      }
+    }
+
+    return {
+      id: p.id,
+      title: p.title,
+      price: `$${p.price}`,
+      tag: p.tag || 'New',
+      image_url: imageUrl,
+    };
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
