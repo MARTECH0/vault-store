@@ -1,6 +1,7 @@
 'use client';
 
-import { MessageCircle } from 'lucide-react';
+import { ShoppingBag, MessageCircle } from 'lucide-react';
+import { useCart } from './CartContext';
 import TrustBanner from './TrustBanner';
 import RecommendationGrid from './RecommendationGrid';
 
@@ -27,6 +28,20 @@ interface ProductDetailPageProps {
 }
 
 export default function ProductDetailPage({ product, whatsappNumber, relatedProducts }: ProductDetailPageProps) {
+  const { addToCart } = useCart();
+
+  // Parse the numeric price from the formatted string (e.g. "$380" → 380)
+  const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, '')) || 0;
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: product.id,
+      name: product.title,
+      price: numericPrice,
+      imageUrl: product.imageUrl || '',
+    });
+  };
+
   const handleOrderNow = () => {
     const message = `Hello Elite TCG Vault! 👋
 
@@ -92,14 +107,30 @@ Please let me know if this is available and how I can proceed with the payment. 
                 </div>
               </div>
 
-              {/* CTA Button */}
-              <button
-                onClick={handleOrderNow}
-                className="w-full bg-[#25D366] hover:bg-[#20b857] text-white font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-lg shadow-lg hover:shadow-xl"
-              >
-                <MessageCircle className="w-6 h-6" />
-                Order via WhatsApp
-              </button>
+              {/* ── CTA Buttons ────────────────────────────────────────── */}
+              <div className="space-y-3">
+                {/* Primary — Add to Cart */}
+                <button
+                  onClick={handleAddToCart}
+                  data-id={product.id}
+                  data-name={product.title}
+                  data-price={numericPrice}
+                  data-image={product.imageUrl || ''}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-lg shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30"
+                >
+                  <ShoppingBag className="w-6 h-6" />
+                  Add to Cart
+                </button>
+
+                {/* Secondary — WhatsApp */}
+                <button
+                  onClick={handleOrderNow}
+                  className="w-full border-2 border-[#25D366] text-[#25D366] hover:bg-[#25D366]/10 font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-lg"
+                >
+                  <MessageCircle className="w-6 h-6" />
+                  Order via WhatsApp
+                </button>
+              </div>
 
               {/* Trust Banner */}
               <TrustBanner />

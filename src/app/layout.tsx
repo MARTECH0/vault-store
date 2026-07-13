@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { CartProvider } from "@/components/CartContext";
+import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,8 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} antialiased`}>
       <body className="min-h-screen flex flex-col">
-        {children}
-        <Analytics />
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

@@ -1,12 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
+import { useCart } from './CartContext';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { itemCount, openDrawer } = useCart();
+  const [badgeKey, setBadgeKey] = useState(0);
+  const prevCount = useRef(itemCount);
+
+  // Trigger pulse animation when count changes
+  useEffect(() => {
+    if (itemCount !== prevCount.current) {
+      setBadgeKey((k) => k + 1);
+      prevCount.current = itemCount;
+    }
+  }, [itemCount]);
 
   return (
     <nav className="sticky top-0 z-50 bg-[#1a237e]">
@@ -31,15 +43,49 @@ export default function Navbar() {
             <Link href="/contact" className="text-white/80 hover:text-white transition-colors font-medium">
               Contact
             </Link>
+
+            {/* Cart Button */}
+            <button
+              onClick={openDrawer}
+              className="relative p-2 rounded-full hover:bg-white/10 transition-colors"
+              aria-label="Open shopping cart"
+            >
+              <ShoppingBag className="w-5 h-5 text-white" />
+              {itemCount > 0 && (
+                <span
+                  key={badgeKey}
+                  className="absolute -top-1 -right-1 bg-emerald-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center cart-badge-animate"
+                >
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+            </button>
           </div>
           
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            {isOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
-          </button>
+          {/* Mobile: Cart + Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={openDrawer}
+              className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
+              aria-label="Open shopping cart"
+            >
+              <ShoppingBag className="w-5 h-5 text-white" />
+              {itemCount > 0 && (
+                <span
+                  key={badgeKey}
+                  className="absolute -top-0.5 -right-0.5 bg-emerald-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center cart-badge-animate"
+                >
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            >
+              {isOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
+            </button>
+          </div>
         </div>
       </div>
       
