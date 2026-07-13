@@ -24,7 +24,7 @@ interface Product {
 export default function Shop() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSeries, setSelectedSeries] = useState('All Series');
@@ -53,7 +53,6 @@ export default function Shop() {
           console.log('First product title:', data[0].title);
         }
         setProducts(data || []);
-        setFilteredProducts(data || []);
       }
       setLoading(false);
     }
@@ -196,7 +195,7 @@ Please let me know if this is available and how I can proceed with the payment. 
 
               {/* Counter */}
               <div className="text-gray-500 text-sm font-medium whitespace-nowrap">
-                {filteredProducts.length} product(s) found
+                {computedFilteredProducts.length} product(s) found
               </div>
             </div>
           </motion.div>
@@ -210,13 +209,13 @@ Please let me know if this is available and how I can proceed with the payment. 
             <div className="text-center py-12">
               <p className="text-gray-500">Loading products...</p>
             </div>
-          ) : filteredProducts.length === 0 ? (
+          ) : computedFilteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500">No products found. Try adjusting your search or filters.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product, index) => (
+              {computedFilteredProducts.map((product, index) => (
                 <Link href={`/products/${product.id}`} key={product.id}>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
