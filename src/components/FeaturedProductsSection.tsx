@@ -3,34 +3,47 @@
 import { motion } from 'framer-motion';
 import { Sparkles, ShoppingCart, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface FeaturedProductsSectionProps {
   products?: any[];
 }
 
-const featuredTCGProducts = [
-  { id: 1, title: '151 UPC', price: '$550', tag: '151' },
-  { id: 2, title: 'Black Bolt Booster Box', price: '$90', tag: 'BLACK BOLT' },
-  { id: 3, title: 'White Flare Booster Box', price: '$150', tag: 'WHITE FLARE' },
-  { id: 4, title: 'Prismatic Evolutions ETB', price: '$180', tag: 'PRISMATIC' },
-];
-
-export default function FeaturedProductsSection({ products = featuredTCGProducts }: FeaturedProductsSectionProps) {
+export default function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952';
+  const router = useRouter();
 
   const handleBuyNow = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     e.stopPropagation();
+    const price = typeof product.price === 'number' ? `$${product.price}` : product.price;
     const message = `Hello Elite TCG Vault! 👋
 
 I would like to place an order for the following item:
 
 📦 Product: ${product.title}
-💰 Price: ${product.price}
+💰 Price: ${price}
 
 Please let me know if this is available and how I can proceed with the payment. Thanks!`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
+
+  const handleDetails = (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/products/${productId}`);
+  };
+
+  const formatPrice = (price: any) => {
+    if (typeof price === 'number') {
+      return `$${price}`;
+    }
+    return price;
+  };
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-16 sm:py-24 bg-[#FCF9F2]">
@@ -53,7 +66,7 @@ Please let me know if this is available and how I can proceed with the payment. 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {products.map((product, index) => (
-            <Link href={`/products/${product.id}`} key={index}>
+            <Link href={`/products/${product.id}`} key={product.id || index}>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -63,21 +76,28 @@ Please let me know if this is available and how I can proceed with the payment. 
               >
                 {/* Card Header - Tag */}
                 <div className="text-xs font-semibold text-[#0B132B] uppercase italic mb-3">
-                  {product.tag}
+                  {product.tag || product.category}
                 </div>
 
                 {/* Product Image */}
-                <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                  <Sparkles className="w-12 h-12 text-gray-400" />
+                <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Sparkles className="w-12 h-12 text-gray-400" />
+                  )}
                 </div>
 
                 {/* Product Info */}
                 <h3 className="font-bold text-[#0B132B] mb-2">{product.title}</h3>
-                <p className="text-xl font-bold text-[#0B132B] mb-4">{product.price}</p>
+                <p className="text-xl font-bold text-[#0B132B] mb-4">{formatPrice(product.price)}</p>
 
                 {/* Card Actions */}
                 <div className="flex gap-2">
-                  <button className="flex-1 text-sm font-medium text-gray-600 hover:text-[#0B132B] transition-colors">
+                  <button 
+                    onClick={(e) => handleDetails(e, product.id)}
+                    className="flex-1 text-sm font-medium text-gray-600 hover:text-[#0B132B] transition-colors"
+                  >
                     Details
                   </button>
                   <button 

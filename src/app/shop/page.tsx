@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FloatingWhatsAppWidget from '@/components/FloatingWhatsAppWidget';
@@ -21,6 +22,7 @@ interface Product {
 }
 
 export default function Shop() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +100,12 @@ I would like to place an order for the following item:
 
 Please let me know if this is available and how I can proceed with the payment. Thanks!`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleDetails = (e: React.MouseEvent, productId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/products/${productId}`);
   };
 
   return (
@@ -229,7 +237,10 @@ Please let me know if this is available and how I can proceed with the payment. 
 
                     {/* Card Actions */}
                     <div className="flex gap-2">
-                      <button className="flex-1 text-sm font-medium text-gray-600 hover:text-[#0B132B] transition-colors py-2">
+                      <button 
+                        onClick={(e) => handleDetails(e, product.id)}
+                        className="flex-1 text-sm font-medium text-gray-600 hover:text-[#0B132B] transition-colors py-2"
+                      >
                         Details
                       </button>
                       <button 

@@ -7,9 +7,31 @@ import FeaturedProductsSection from '@/components/FeaturedProductsSection';
 import HowToOrderSection from '@/components/HowToOrderSection';
 import TestimonialsSection from '@/components/TestimonialsSection';
 import BottomCTASection from '@/components/BottomCTASection';
+import { supabase } from '@/lib/supabase';
 
-export default function Home() {
+async function getFeaturedProducts() {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(4);
+
+    if (error) {
+      console.error('Error fetching featured products:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (e) {
+    console.error('Error fetching featured products:', e);
+    return [];
+  }
+}
+
+export default async function Home() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952';
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -17,7 +39,7 @@ export default function Home() {
       
       <HeroSection whatsappNumber={whatsappNumber} />
       <TrustMarqueeSection />
-      <FeaturedProductsSection />
+      <FeaturedProductsSection products={featuredProducts} />
       <HowToOrderSection />
       <TestimonialsSection />
       <BottomCTASection whatsappNumber={whatsappNumber} />
