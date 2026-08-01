@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, LogOut, Package, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, LogOut, Package, Search, Upload, X, ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Product {
@@ -34,6 +34,10 @@ export default function AdminDashboard() {
     description: '',
     stock: '0',
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -70,6 +74,8 @@ export default function AdminDashboard() {
   const handleAddProduct = () => {
     setEditingProduct(null);
     setFormData({ title: '', price: '', category: '', tag: '', image_url: '', description: '', stock: '0' });
+    setImageFile(null);
+    setImagePreview(null);
     setShowModal(true);
   };
 
@@ -84,6 +90,8 @@ export default function AdminDashboard() {
       description: product.description || '',
       stock: (product.stock ?? 0).toString(),
     });
+    setImageFile(null);
+    setImagePreview(product.image_url || null);
     setShowModal(true);
   };
 
@@ -100,15 +108,79 @@ export default function AdminDashboard() {
     }
   };
 
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
+  };
+
+  const handleImageSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (JPG, PNG, WebP, etc.)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be smaller than 5MB');
+      return;
+    }
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageSelect(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
+
+    let imageUrl = formData.image_url;
+
+    // Upload new image if one was selected
+    if (imageFile) {
+      const uploadedUrl = await uploadImage(imageFile);
+      if (!uploadedUrl) {
+        alert('Failed to upload image. Please try again.');
+        setUploading(false);
+        return;
+      }
+      imageUrl = uploadedUrl;
+    }
+
+    if (!imageUrl && !editingProduct) {
+      alert('Please select a product image.');
+      setUploading(false);
+      return;
+    }
 
     const productData = {
       title: formData.title,
       price: parseFloat(formData.price),
       category: formData.category,
       tag: formData.tag,
-      image_url: formData.image_url,
+      image_url: imageUrl,
       description: formData.description,
       stock: parseInt(formData.stock) || 0,
     };
@@ -137,6 +209,7 @@ export default function AdminDashboard() {
         setShowModal(false);
       }
     }
+    setUploading(false);
   };
 
   const filteredProducts = products.filter(product =>
@@ -458,17 +531,53 @@ export default function AdminDashboard() {
               </div>
 
               <div>
-                <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 mb-2">
-                  Image URL
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Image
                 </label>
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="relative mb-3">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                        setFormData({ ...formData, image_url: '' });
+                      }}
+                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"
+                      aria-label="Remove image"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                {/* Drop Zone */}
+                {!imagePreview && (
+                  <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                    <p className="text-sm font-medium text-gray-700">Click to upload or drag and drop</p>
+                    <p className="text-xs text-gray-500 mt-1">PNG, JPG, WebP up to 5MB</p>
+                  </div>
+                )}
                 <input
-                  id="image_url"
-                  type="url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="https://example.com/image.jpg"
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageSelect(file);
+                  }}
                 />
               </div>
 
@@ -512,9 +621,14 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                  disabled={uploading}
+                  className={`flex-1 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                    uploading
+                      ? 'bg-gray-400 text-white cursor-not-allowed'
+                      : 'bg-primary hover:bg-primary-dark text-white'
+                  }`}
                 >
-                  {editingProduct ? 'Update Product' : 'Add Product'}
+                  {uploading ? 'Uploading...' : editingProduct ? 'Update Product' : 'Add Product'}
                 </button>
               </div>
             </form>
