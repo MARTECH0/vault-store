@@ -116,11 +116,12 @@ export default function AdminDashboard() {
       .from('product-images')
       .upload(fileName, file, {
         cacheControl: '3600',
-        upsert: false,
+        upsert: true,
       });
 
     if (error) {
       console.error('Error uploading image:', error);
+      alert(`Image upload error: ${error.message}`);
       return null;
     }
 
