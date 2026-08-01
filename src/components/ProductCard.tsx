@@ -1,7 +1,8 @@
 'use client';
 
-import { MessageCircle } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCart } from './CartContext';
 
 interface ProductCardProps {
   id: number;
@@ -23,10 +24,17 @@ const badgeColors: Record<string, string> = {
 };
 
 export default function ProductCard({ id, title, price, category, tag, image_url, index = 0 }: ProductCardProps) {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '1234567890';
-  const whatsappMessage = `Hi! I'm interested in ordering the ${encodeURIComponent(title)}`;
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+  const { addToCart } = useCart();
   const badgeColor = badgeColors[tag] || 'bg-gray-500';
+
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name: title,
+      price,
+      imageUrl: image_url || '',
+    });
+  };
 
   return (
     <motion.div
@@ -51,15 +59,13 @@ export default function ProductCard({ id, title, price, category, tag, image_url
           <span className="text-sm text-gray-500 capitalize">{category}</span>
           <span className="text-2xl font-bold text-primary">${price.toFixed(2)}</span>
         </div>
-        <a
-          href={whatsappLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2"
         >
-          <MessageCircle className="w-5 h-5" />
-          Order on WhatsApp
-        </a>
+          <ShoppingCart className="w-5 h-5" />
+          Add to Cart
+        </button>
       </div>
     </motion.div>
   );

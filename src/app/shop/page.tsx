@@ -10,6 +10,7 @@ import FloatingWhatsAppWidget from '@/components/FloatingWhatsAppWidget';
 import { supabase } from '@/lib/supabase';
 import { Search, ChevronDown, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCart } from '@/components/CartContext';
 
 interface Product {
   id: number;
@@ -23,6 +24,7 @@ interface Product {
 
 export default function Shop() {
   const router = useRouter();
+  const { addToCart } = useCart();
   const [products, setProducts] = useState<Product[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -96,18 +98,15 @@ export default function Shop() {
 
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952';
 
-  const handleBuyNow = (e: React.MouseEvent, product: Product) => {
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
-    const message = `Hello Elite TCG Vault! 👋
-
-I would like to place an order for the following item:
-
-📦 Product: ${product.title}
-💰 Price: $${product.price}
-
-Please let me know if this is available and how I can proceed with the payment. Thanks!`;
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    addToCart({
+      id: product.id,
+      name: product.title,
+      price: product.price,
+      imageUrl: product.image_url || '',
+    });
   };
 
   const handleDetails = (e: React.MouseEvent, productId: number) => {
@@ -253,11 +252,11 @@ Please let me know if this is available and how I can proceed with the payment. 
                         Details
                       </button>
                       <button 
-                        onClick={(e) => handleBuyNow(e, product)}
-                        className="flex-1 bg-[#0B132B] hover:bg-[#0B132B]/80 text-white text-sm font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                        onClick={(e) => handleAddToCart(e, product)}
+                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white text-sm font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1"
                       >
                         <ShoppingCart className="w-4 h-4" />
-                        Buy Now
+                        Add to Cart
                       </button>
                     </div>
                   </motion.div>
