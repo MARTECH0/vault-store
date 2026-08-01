@@ -11,6 +11,7 @@ interface Product {
   price: string;
   tag: string;
   image_url?: string;
+  stock?: number;
 }
 
 interface RecommendationGridProps {
@@ -24,6 +25,7 @@ export default function RecommendationGrid({ products }: RecommendationGridProps
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    if ((product.stock ?? 0) <= 0) return;
     const price = parseFloat(String(product.price).replace(/[^0-9.]/g, '')) || 0;
     addToCart({
       id: product.id,
@@ -62,11 +64,16 @@ export default function RecommendationGrid({ products }: RecommendationGridProps
             <Link href={`/products/${product.id}`} key={product.id}>
               <div className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
                 <div className="text-xs font-semibold text-[#0B132B] uppercase mb-2">{product.tag}</div>
-                <div className="aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                <div className="relative aspect-square bg-gray-100 rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                   {getImageUrl(product.image_url) ? (
-                    <img src={getImageUrl(product.image_url)!} alt={product.title} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(product.image_url)!} alt={product.title} className={`w-full h-full object-cover ${(product.stock ?? 0) <= 0 ? 'opacity-50 grayscale' : ''}`} />
                   ) : (
                     <Sparkles className="w-12 h-12 text-gray-400" />
+                  )}
+                  {(product.stock ?? 0) <= 0 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                      <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Sold Out</span>
+                    </div>
                   )}
                 </div>
                 <h3 className="font-semibold text-[#0B132B] mb-2">{product.title}</h3>
@@ -80,10 +87,15 @@ export default function RecommendationGrid({ products }: RecommendationGridProps
                   </button>
                   <button 
                     onClick={(e) => handleAddToCart(e, product)}
-                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white text-sm font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1"
+                    disabled={(product.stock ?? 0) <= 0}
+                    className={`flex-1 text-sm font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
+                      (product.stock ?? 0) <= 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white'
+                    }`}
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    Add to Cart
+                    {(product.stock ?? 0) <= 0 ? 'Sold Out' : 'Add to Cart'}
                   </button>
                 </div>
               </div>

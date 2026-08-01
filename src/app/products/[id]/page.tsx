@@ -161,6 +161,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     availability: 'In Stock',
     condition: '100% Authentic Japanese Import',
     imageUrl: imageUrl,
+    stock: product.stock ?? 0,
   };
 
   const formattedRelatedProducts = relatedProducts.map((p: any) => {
@@ -179,6 +180,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
       price: `$${p.price}`,
       tag: p.tag || 'New',
       image_url: imageUrl,
+      stock: p.stock ?? 0,
     };
   });
 

@@ -15,6 +15,7 @@ interface Product {
   tag: string;
   image_url: string;
   description?: string;
+  stock: number;
   created_at: string;
 }
 
@@ -31,6 +32,7 @@ export default function AdminDashboard() {
     tag: '',
     image_url: '',
     description: '',
+    stock: '0',
   });
   const router = useRouter();
 
@@ -67,7 +69,7 @@ export default function AdminDashboard() {
 
   const handleAddProduct = () => {
     setEditingProduct(null);
-    setFormData({ title: '', price: '', category: '', tag: '', image_url: '', description: '' });
+    setFormData({ title: '', price: '', category: '', tag: '', image_url: '', description: '', stock: '0' });
     setShowModal(true);
   };
 
@@ -80,6 +82,7 @@ export default function AdminDashboard() {
       tag: product.tag,
       image_url: product.image_url,
       description: product.description || '',
+      stock: (product.stock ?? 0).toString(),
     });
     setShowModal(true);
   };
@@ -107,6 +110,7 @@ export default function AdminDashboard() {
       tag: formData.tag,
       image_url: formData.image_url,
       description: formData.description,
+      stock: parseInt(formData.stock) || 0,
     };
 
     if (editingProduct) {
@@ -172,7 +176,7 @@ export default function AdminDashboard() {
           transition={{ duration: 0.6 }}
         >
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -206,6 +210,19 @@ export default function AdminDashboard() {
                   <p className="text-sm text-gray-600">Featured Tags</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {new Set(products.map(p => p.tag)).size}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <Package className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Out of Stock</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {products.filter(p => (p.stock ?? 0) <= 0).length}
                   </p>
                 </div>
               </div>
@@ -256,6 +273,9 @@ export default function AdminDashboard() {
                       <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Price
                       </th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Stock
+                      </th>
                       <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Actions
                       </th>
@@ -289,6 +309,30 @@ export default function AdminDashboard() {
                         </td>
                         <td className="px-6 py-4 font-semibold text-gray-900">
                           ${product.price.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4">
+                          {(() => {
+                            const stock = product.stock ?? 0;
+                            if (stock <= 0) {
+                              return (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                                  Out of Stock
+                                </span>
+                              );
+                            }
+                            if (stock <= 5) {
+                              return (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
+                                  Low: {stock}
+                                </span>
+                              );
+                            }
+                            return (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                In Stock: {stock}
+                              </span>
+                            );
+                          })()}
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
@@ -439,6 +483,22 @@ export default function AdminDashboard() {
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                   placeholder="Enter a detailed description of the product..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="stock" className="block text-sm font-medium text-gray-700 mb-2">
+                  Stock Quantity
+                </label>
+                <input
+                  id="stock"
+                  type="number"
+                  min="0"
+                  value={formData.stock}
+                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="0"
                 />
               </div>
 

@@ -14,6 +14,7 @@ interface Product {
   availability: string;
   condition: string;
   imageUrl?: string;
+  stock?: number;
 }
 
 interface ProductDetailPageProps {
@@ -24,6 +25,7 @@ interface ProductDetailPageProps {
     title: string;
     price: string;
     tag: string;
+    stock?: number;
   }>;
 }
 
@@ -32,8 +34,11 @@ export default function ProductDetailPage({ product, whatsappNumber, relatedProd
 
   // Parse the numeric price from the formatted string (e.g. "$380" → 380)
   const numericPrice = parseFloat(product.price.replace(/[^0-9.]/g, '')) || 0;
+  const stock = product.stock ?? 0;
+  const isOutOfStock = stock <= 0;
 
   const handleAddToCart = () => {
+    if (isOutOfStock) return;
     addToCart({
       id: product.id,
       name: product.title,
@@ -99,7 +104,13 @@ Please let me know if this is available and how I can proceed with the payment. 
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[#0B132B]">Availability:</span>
-                  <span className="font-bold text-[#0B132B]">{product.availability}</span>
+                  {isOutOfStock ? (
+                    <span className="font-bold text-red-600">Out of Stock</span>
+                  ) : stock <= 5 ? (
+                    <span className="font-bold text-amber-600">Low Stock — Only {stock} left</span>
+                  ) : (
+                    <span className="font-bold text-emerald-600">In Stock ({stock} available)</span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-[#0B132B]">Condition:</span>
@@ -112,14 +123,19 @@ Please let me know if this is available and how I can proceed with the payment. 
                 {/* Primary — Add to Cart */}
                 <button
                   onClick={handleAddToCart}
+                  disabled={isOutOfStock}
                   data-id={product.id}
                   data-name={product.title}
                   data-price={numericPrice}
                   data-image={product.imageUrl || ''}
-                  className="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-lg shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30"
+                  className={`w-full font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-lg ${
+                    isOutOfStock
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30'
+                  }`}
                 >
                   <ShoppingBag className="w-6 h-6" />
-                  Add to Cart
+                  {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                 </button>
 
                 {/* Secondary — WhatsApp */}

@@ -17,6 +17,7 @@ export type Database = {
           tag: string;
           image_url: string;
           description?: string;
+          stock: number;
           created_at: string;
           updated_at: string;
         };
@@ -28,6 +29,7 @@ export type Database = {
           tag: string;
           image_url: string;
           description?: string;
+          stock?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -39,6 +41,7 @@ export type Database = {
           tag?: string;
           image_url?: string;
           description?: string;
+          stock?: number;
           created_at?: string;
           updated_at?: string;
         };

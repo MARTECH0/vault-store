@@ -20,6 +20,7 @@ interface Product {
   tag: string;
   image_url: string;
   description?: string;
+  stock?: number;
 }
 
 export default function Shop() {
@@ -101,6 +102,7 @@ export default function Shop() {
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
     e.stopPropagation();
+    if ((product.stock ?? 0) <= 0) return;
     addToCart({
       id: product.id,
       name: product.title,
@@ -228,11 +230,16 @@ export default function Shop() {
                     </div>
 
                     {/* Product Image */}
-                    <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                    <div className="relative aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden">
                       {product.image_url ? (
-                        <img src={product.image_url} alt={product.title} className="w-full h-full object-cover" />
+                        <img src={product.image_url} alt={product.title} className={`w-full h-full object-cover ${(product.stock ?? 0) <= 0 ? 'opacity-50 grayscale' : ''}`} />
                       ) : (
                         <div className="text-gray-300 text-4xl">📦</div>
+                      )}
+                      {(product.stock ?? 0) <= 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
+                          <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full">Out of Stock</span>
+                        </div>
                       )}
                     </div>
 
@@ -253,10 +260,15 @@ export default function Shop() {
                       </button>
                       <button 
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="flex-1 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white text-sm font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1"
+                        disabled={(product.stock ?? 0) <= 0}
+                        className={`flex-1 text-sm font-medium py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1 ${
+                          (product.stock ?? 0) <= 0
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                            : 'bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white'
+                        }`}
                       >
                         <ShoppingCart className="w-4 h-4" />
-                        Add to Cart
+                        {(product.stock ?? 0) <= 0 ? 'Sold Out' : 'Add to Cart'}
                       </button>
                     </div>
                   </motion.div>

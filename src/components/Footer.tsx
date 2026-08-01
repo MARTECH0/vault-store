@@ -56,7 +56,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">INFO & CONTACT</h4>
             <ul className="space-y-2 mb-6">
               <li className="text-white/70">
-                <span className="font-semibold text-white">Hours:</span> Mon-Fri 9AM-8PM
+                <span className="font-semibold text-white">Hours:</span> Mon-Sun 9AM-8PM
               </li>
               <li className="text-white/70">
                 <span className="font-semibold text-white">Shipping:</span> Ships worldwide
