@@ -105,6 +105,12 @@ export default function Navbar() {
             <Link href="/contact" className="block text-white/80 hover:text-white font-medium py-2" onClick={() => setIsOpen(false)}>
               Contact
             </Link>
+            <Link href="/cart" className="flex items-center justify-between text-white/80 hover:text-white font-medium py-2" onClick={() => setIsOpen(false)}>
+              <span>Cart</span>
+              {itemCount > 0 && (
+                <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{itemCount}</span>
+              )}
+            </Link>
           </div>
         </div>
       )}

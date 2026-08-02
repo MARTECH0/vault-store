@@ -177,7 +177,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     return {
       id: p.id,
       title: p.title,
-      price: `$${p.price}`,
+      price: `€${p.price}`,
       tag: p.tag || 'New',
       image_url: imageUrl,
       stock: p.stock ?? 0,
