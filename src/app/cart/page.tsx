@@ -19,7 +19,7 @@ export default function CartPage() {
   } = useCart();
   const router = useRouter();
 
-  const shipping = totalPrice > 100 ? 0 : 9.99;
+  const shipping = totalPrice * 0.10;
   const grandTotal = totalPrice + shipping;
 
   return (
@@ -151,26 +151,7 @@ export default function CartPage() {
                 ))}
               </AnimatePresence>
 
-              {shipping > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-white rounded-2xl border border-dashed border-emerald-300 p-4 flex items-center gap-3"
-                >
-                  <Truck className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-[#0B132B]">
-                      Add <span className="text-emerald-600">€{(100 - totalPrice).toFixed(2)}</span> more for <span className="text-emerald-600">FREE shipping!</span>
-                    </p>
-                    <div className="mt-1.5 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                        style={{ width: Math.min((totalPrice / 100) * 100, 100) + '%' }}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+
             </div>
 
             {/* RIGHT: Order Summary */}
@@ -204,15 +185,12 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between text-sm text-gray-600">
                       <span className="flex items-center gap-1">
-                        <Truck className="w-3.5 h-3.5" /> Shipping
+                        <Truck className="w-3.5 h-3.5" /> Shipping (10%)
                       </span>
-                      <span className={(shipping === 0 ? 'font-semibold text-emerald-600' : 'font-semibold')}>
-                        {shipping === 0 ? 'FREE' : '€' + shipping.toFixed(2)}
+                      <span className="font-semibold">
+                        €{shipping.toFixed(2)}
                       </span>
                     </div>
-                    {shipping > 0 && (
-                      <p className="text-xs text-gray-400 italic">Free shipping on orders over €100</p>
-                    )}
                     <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
                       <span className="font-bold text-[#0B132B]">Total</span>
                       <span className="text-2xl font-bold text-emerald-600">€{grandTotal.toFixed(2)}</span>

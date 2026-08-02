@@ -161,7 +161,7 @@ export default function CartDrawer() {
           <div className="border-t border-gray-200 px-6 py-5 space-y-4 bg-white">
             {/* Total */}
             <div className="flex items-center justify-between">
-              <span className="text-base font-semibold text-gray-700">Total</span>
+              <span className="text-base font-semibold text-gray-700">Subtotal</span>
               <span className="text-xl font-bold text-emerald-600">
                 €{totalPrice.toFixed(2)}
               </span>

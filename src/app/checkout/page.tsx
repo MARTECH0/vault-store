@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,7 @@ import {
   Bitcoin,
   RefreshCw,
   ExternalLink,
+  CreditCard,
 } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -36,13 +37,15 @@ interface FormData {
   streetAddress: string;
   apartment: string;
   postalCode: string;
+  paymentMethod: 'bitcoin' | 'bank_transfer';
   notes: string;
 }
 interface FormErrors { [key: string]: string; }
 
 const INITIAL_FORM: FormData = {
   fullName: '', email: '', phone: '', country: '',
-  city: '', streetAddress: '', apartment: '', postalCode: '', notes: '',
+  city: '', streetAddress: '', apartment: '', postalCode: '',
+  paymentMethod: 'bitcoin', notes: '',
 };
 
 const COUNTRIES = [
@@ -279,12 +282,9 @@ function OrderSummary({ items, totalPrice, shipping, grandTotal }: {
             <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm text-gray-600">
-            <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Shipping</span>
-            <span className={`font-semibold ${shipping === 0 ? 'text-emerald-600' : ''}`}>
-              {shipping === 0 ? 'FREE' : `€${shipping.toFixed(2)}`}
-            </span>
+            <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Shipping (10%)</span>
+            <span className="font-semibold">€{shipping.toFixed(2)}</span>
           </div>
-          {shipping > 0 && <p className="text-xs text-gray-400 italic">Free shipping on orders over €100</p>}
           <div className="border-t border-gray-100 pt-2.5 flex justify-between items-center">
             <span className="font-bold text-[#0B132B]">Total</span>
             <span className="text-xl font-bold text-emerald-600">€{grandTotal.toFixed(2)}</span>
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
     if (items.length === 0) router.push('/shop');
   }, [items, router]);
 
-  const shipping = totalPrice >= 100 ? 0 : 9.99;
+  const shipping = totalPrice * 0.10; // 10% of subtotal
   const grandTotal = totalPrice + shipping;
 
   const validate = (): boolean => {
@@ -361,8 +361,15 @@ export default function CheckoutPage() {
     const orderLines = items
       .map((i) => `  - ${i.name} x${i.quantity} -- €${(i.price * i.quantity).toFixed(2)}`)
       .join('\n');
+    const isBtc = form.paymentMethod === 'bitcoin';
+    const header = isBtc
+      ? '🪙 NEW BITCOIN ORDER — Elite TCG Vault'
+      : '🏦 NEW BANK TRANSFER ORDER — Elite TCG Vault';
+    const paymentLines = isBtc
+      ? ['💰 Payment Method: Bitcoin (BTC)', `  BTC Address: ${btcAddress}`, '', 'I have sent the Bitcoin payment. Please confirm receipt and process my order. Thank you!']
+      : ['🏦 Payment Method: Bank Transfer', '', 'Please send me your bank account details so I can complete the transfer. Thank you!'];
     const parts = [
-      '🪙 NEW BITCOIN ORDER — Elite TCG Vault',
+      header,
       '',
       '👤 Customer Details',
       `  Name: ${form.fullName}`,
@@ -379,14 +386,11 @@ export default function CheckoutPage() {
       orderLines,
       '',
       `Subtotal: €${totalPrice.toFixed(2)}`,
-      `Shipping: ${shipping === 0 ? 'FREE' : '€' + shipping.toFixed(2)}`,
+      `Shipping (10%): €${shipping.toFixed(2)}`,
       `Grand Total: €${grandTotal.toFixed(2)}`,
       '',
-      '💰 Payment Method: Bitcoin (BTC)',
-      `  BTC Address: ${btcAddress}`,
-      '',
-      form.notes ? `📝 Notes: ${form.notes}\n` : '',
-      "I have sent the Bitcoin payment. Please confirm receipt and process my order. Thank you!",
+      ...paymentLines,
+      form.notes ? `\n📝 Notes: ${form.notes}` : '',
     ].filter(Boolean);
     const message = parts.join('\n').trim();
     const waNum = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952';
@@ -397,7 +401,7 @@ export default function CheckoutPage() {
 
   if (items.length === 0) return null;
 
-  const stepLabels = ['Your Details', 'Pay with Bitcoin', 'Confirmed'];
+  const stepLabels = ['Your Details', 'Review & Pay', 'Confirmed'];
 
   return (
     <div className="min-h-screen bg-[#FCF9F2]">
@@ -525,6 +529,38 @@ export default function CheckoutPage() {
                   </div>
                 </section>
 
+                {/* Payment Method */}
+                <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
+                  <h2 className="text-base font-bold text-[#0B132B] mb-5 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-emerald-500" />Payment Method
+                  </h2>
+                  <div className="space-y-3">
+                    {([
+                      { value: 'bitcoin' as const, icon: '₿', label: 'Bitcoin (BTC)', desc: 'Pay with crypto — scan a QR code or copy wallet address', accent: 'border-[#F7931A] bg-[#F7931A]/5', dot: 'border-[#F7931A] bg-[#F7931A]' },
+                      { value: 'bank_transfer' as const, icon: '🏦', label: 'Bank Transfer', desc: 'Transfer directly — we\'ll send our bank details via WhatsApp', accent: 'border-emerald-500 bg-emerald-50/60', dot: 'border-emerald-500 bg-emerald-500' },
+                    ]).map(({ value, icon, label, desc, accent, dot }) => (
+                      <label key={value} htmlFor={`pay-${value}`}
+                        className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          form.paymentMethod === value ? accent : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}>
+                        <input type="radio" id={`pay-${value}`} name="paymentMethod" value={value}
+                          checked={form.paymentMethod === value}
+                          onChange={() => handleChange('paymentMethod', value)} className="sr-only" />
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                          form.paymentMethod === value ? dot : 'border-gray-300'
+                        }`}>
+                          {form.paymentMethod === value && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                        <span className="text-xl">{icon}</span>
+                        <div>
+                          <p className="font-semibold text-sm text-[#0B132B]">{label}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </section>
+
                 {/* Notes */}
                 <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-8">
                   <h2 className="text-base font-bold text-[#0B132B] mb-5 flex items-center gap-2">
@@ -538,23 +574,15 @@ export default function CheckoutPage() {
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm text-[#0B132B] placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 hover:border-gray-300 transition-all resize-none" />
                 </section>
 
-                {/* Payment notice */}
-                <div className="flex items-center gap-3 bg-[#F7931A]/10 border border-[#F7931A]/30 rounded-xl p-4 mb-6">
-                  <Bitcoin className="w-5 h-5 text-[#F7931A] flex-shrink-0" />
-                  <p className="text-sm text-[#0B132B]">
-                    <strong>Payment is by Bitcoin (BTC) only.</strong> You'll get the wallet address and QR code on the next step.
-                  </p>
-                </div>
-
                 <button type="submit"
-                  className="w-full bg-[#F7931A] hover:bg-[#e07d0e] active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-base shadow-lg shadow-orange-500/20 hover:shadow-xl hover:shadow-orange-500/30">
-                  Continue to Payment
+                  className="w-full bg-[#0B132B] hover:bg-[#0B132B]/90 active:scale-[0.98] text-white font-bold py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-base shadow-lg shadow-[#0B132B]/20 hover:shadow-xl">
+                  Review & Pay
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </form>
             )}
 
-            {/* STEP 2 — BTC Payment */}
+            {/* STEP 2 — Payment */}
             {step === 2 && (
               <div className="space-y-6">
                 {/* Review summary */}
@@ -578,15 +606,73 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   </div>
+                  <div className="mt-4">
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Payment</p>
+                    <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold ${
+                      form.paymentMethod === 'bitcoin'
+                        ? 'bg-[#F7931A]/10 text-[#a05c00]'
+                        : 'bg-emerald-50 text-emerald-700'
+                    }`}>
+                      {form.paymentMethod === 'bitcoin' ? '₿ Bitcoin (BTC)' : '🏦 Bank Transfer'}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bitcoin payment panel */}
-                <BtcPaymentPanel
-                  grandTotal={grandTotal}
-                  btcAddress={btcAddress}
-                  onConfirm={handleConfirmPayment}
-                  submitting={submitting}
-                />
+                {form.paymentMethod === 'bitcoin' && (
+                  <BtcPaymentPanel
+                    grandTotal={grandTotal}
+                    btcAddress={btcAddress}
+                    onConfirm={handleConfirmPayment}
+                    submitting={submitting}
+                  />
+                )}
+
+                {/* Bank Transfer panel */}
+                {form.paymentMethod === 'bank_transfer' && (
+                  <div className="space-y-5">
+                    <div className="bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-200 rounded-2xl p-5">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-lg">🏦</span>
+                        </div>
+                        <div>
+                          <h2 className="font-bold text-[#0B132B] text-base">Bank Transfer</h2>
+                          <p className="text-xs text-gray-500">Our bank details will be sent to you via WhatsApp</p>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-xl p-4 border border-emerald-100 space-y-2 text-sm">
+                        <div className="flex items-start gap-2">
+                          <span className="text-emerald-500 font-bold mt-0.5">1.</span>
+                          <p className="text-gray-700">Click <strong>"Confirm Order via WhatsApp"</strong> below.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-emerald-500 font-bold mt-0.5">2.</span>
+                          <p className="text-gray-700">We'll reply with our <strong>bank account details</strong> (IBAN / sort code).</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-emerald-500 font-bold mt-0.5">3.</span>
+                          <p className="text-gray-700">Complete your transfer for <strong>€{grandTotal.toFixed(2)}</strong> and send us the payment reference.</p>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <span className="text-emerald-500 font-bold mt-0.5">4.</span>
+                          <p className="text-gray-700">Your order ships once payment clears.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleConfirmPayment}
+                      disabled={submitting}
+                      className="w-full bg-[#25D366] hover:bg-[#20b857] active:scale-[0.98] disabled:opacity-60 text-white font-bold py-4 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 text-base shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30"
+                    >
+                      {submitting
+                        ? <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</>
+                        : <>✅ Confirm Order via WhatsApp</>
+                      }
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
