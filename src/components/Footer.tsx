@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Facebook } from 'lucide-react';
 
 export default function Footer() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '1234567890';
@@ -15,11 +15,8 @@ export default function Footer() {
               Your trusted source for authentic Pokémon TCG products. We specialize in rare Japanese booster boxes, premium collections, and special edition sets.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-lg">
-                📸
-              </a>
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-lg">
-                ▶️
+              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-[#1877F2] rounded-full flex items-center justify-center transition-colors text-white" aria-label="Facebook">
+                <Facebook className="w-5 h-5" />
               </a>
             </div>
           </div>
