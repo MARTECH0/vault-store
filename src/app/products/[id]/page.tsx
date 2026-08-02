@@ -3,6 +3,14 @@ import Footer from '@/components/Footer';
 import FloatingWhatsAppWidget from '@/components/FloatingWhatsAppWidget';
 import ProductDetailPage from '@/components/ProductDetailPage';
 import { supabase } from '@/lib/supabase';
+import { Metadata } from 'next';
+
+function getFullImageUrl(image_url: string | null) {
+  if (!image_url) return null;
+  if (image_url.startsWith('http')) return image_url;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return supabaseUrl ? `${supabaseUrl}/storage/v1/object/public/product-images/${image_url}` : null;
+}
 
 // Mock data for when database is not set up
 const mockProducts: Record<string, any> = {
@@ -113,7 +121,35 @@ async function getRelatedProducts(currentId: string) {
   }
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams.id);
+  
+  if (!product) {
+    return { title: 'Product Not Found | Elite TCG Vault' };
+  }
+
+  const imageUrl = getFullImageUrl(product.image_url);
+  const description = product.description || `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. Sourced directly from Japan.`;
+
+  return {
+    title: product.title,
+    description: description,
+    openGraph: {
+      title: product.title,
+      description: description,
+      images: imageUrl ? [{ url: imageUrl }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description: description,
+      images: imageUrl ? [imageUrl] : [],
+    }
+  };
+}
+
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   // Await params in Next.js 15+
   const resolvedParams = await params;
   console.log('ProductPage called with params:', resolvedParams);
@@ -142,15 +178,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     );
   }
 
-  // Construct proper Supabase Storage URL if image_url is just a filename
-  let imageUrl = product.image_url;
-  if (product.image_url && !product.image_url.startsWith('http')) {
-    // If it's just a filename, construct the full Supabase Storage URL
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (supabaseUrl) {
-      imageUrl = `${supabaseUrl}/storage/v1/object/public/product-images/${product.image_url}`;
-    }
-  }
+  const imageUrl = getFullImageUrl(product.image_url);
 
   const formattedProduct = {
     id: product.id,
@@ -160,7 +188,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     description: product.description || `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. This item is sourced directly from Japan and verified for authenticity.`,
     availability: 'In Stock',
     condition: '100% Authentic Japanese Import',
-    imageUrl: imageUrl,
+    imageUrl: imageUrl || undefined,
     stock: product.stock ?? 0,
   };
 
@@ -180,20 +208,47 @@ export default async function ProductPage({ params }: { params: { id: string } }
       price: `€${p.price}`,
       tag: p.tag || 'New',
       image_url: imageUrl,
-      stock: p.stock ?? 0,
+      image: imageUrl || undefined,
     };
   });
 
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.title,
+    "image": imageUrl ? [imageUrl] : [],
+    "description": formattedProduct.description,
+    "sku": product.id.toString(),
+    "offers": {
+      "@type": "Offer",
+      "url": `${process.env.NEXT_PUBLIC_SITE_URL || 'https://elitetcgvault.com'}/products/${product.id}`,
+      "priceCurrency": "EUR",
+      "price": product.price.toString(),
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": product.stock && product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "Elite TCG Vault"
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <ProductDetailPage
-        product={formattedProduct}
-        whatsappNumber={whatsappNumber}
-        relatedProducts={formattedRelatedProducts}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <Navbar />
+      <main className="flex-grow">
+        <ProductDetailPage 
+          product={formattedProduct} 
+          relatedProducts={formattedRelatedProducts}
+          whatsappNumber={whatsappNumber}
+        />
+      </main>
       <Footer />
-      <FloatingWhatsAppWidget />
+      <FloatingWhatsAppWidget whatsappNumber={whatsappNumber} />
     </div>
   );
 }
