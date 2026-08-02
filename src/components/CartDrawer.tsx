@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from './CartContext';
+import { useRouter } from 'next/navigation';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 
 export default function CartDrawer() {
@@ -14,6 +15,7 @@ export default function CartDrawer() {
     clearCart,
     closeDrawer,
   } = useCart();
+  const router = useRouter();
 
   return (
     <>
@@ -100,7 +102,7 @@ export default function CartDrawer() {
                         {item.name}
                       </h3>
                       <p className="text-sm font-bold text-emerald-600 mt-0.5">
-                        ${item.price.toFixed(2)}
+                        €{item.price.toFixed(2)}
                       </p>
                     </div>
 
@@ -148,21 +150,15 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold text-gray-700">Total</span>
               <span className="text-xl font-bold text-emerald-600">
-                ${totalPrice.toFixed(2)}
+                €{totalPrice.toFixed(2)}
               </span>
             </div>
 
             {/* Checkout button */}
             <button
               onClick={() => {
-                const summary = items
-                  .map((i) => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`)
-                  .join('\n');
-                const msg = `Hello Elite TCG Vault! 👋\n\nI would like to order:\n\n${summary}\n\n💰 Total: $${totalPrice.toFixed(2)}\n\nPlease let me know how to proceed. Thanks!`;
-                window.open(
-                  `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '673008952'}?text=${encodeURIComponent(msg)}`,
-                  '_blank'
-                );
+                closeDrawer();
+                router.push('/checkout');
               }}
               className="w-full bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white font-bold py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-base shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30"
             >

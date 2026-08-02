@@ -500,7 +500,7 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 font-bold text-white">
-                          ${product.price.toFixed(2)}
+                          €{product.price.toFixed(2)}
                         </td>
                         <td className="px-6 py-4">
                           {(() => {
@@ -601,7 +601,7 @@ export default function AdminDashboard() {
 
                 <div>
                   <label htmlFor="price" className="block text-sm font-medium text-gray-300 mb-2">
-                    Price ($)
+                    Price (€)
                   </label>
                   <input
                     id="price"

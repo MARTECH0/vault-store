@@ -248,7 +248,7 @@ export default function Shop() {
                     <p className="text-gray-500 text-sm mb-3 line-clamp-2">
                       {product.description || `Authentic ${product.category} product sourced directly from Japan.`}
                     </p>
-                    <p className="text-xl font-bold text-gray-900 mb-4">${product.price}</p>
+                    <p className="text-xl font-bold text-gray-900 mb-4">€{product.price}</p>
 
                     {/* Card Actions */}
                     <div className="flex gap-2">
