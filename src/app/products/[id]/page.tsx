@@ -156,7 +156,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     id: product.id,
     title: product.title,
     subtitle: product.category,
-    price: `€${product.price}`,
+    price: `$${product.price}`,
     description: product.description || `Authentic ${product.category} product. ${product.tag || 'Premium quality'}. This item is sourced directly from Japan and verified for authenticity.`,
     availability: 'In Stock',
     condition: '100% Authentic Japanese Import',
@@ -177,7 +177,7 @@ export default async function ProductPage({ params }: { params: { id: string } }
     return {
       id: p.id,
       title: p.title,
-      price: `€${p.price}`,
+      price: `$${p.price}`,
       tag: p.tag || 'New',
       image_url: imageUrl,
       stock: p.stock ?? 0,

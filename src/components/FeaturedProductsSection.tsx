@@ -35,7 +35,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
 
   const formatPrice = (price: any) => {
     if (typeof price === 'number') {
-      return `€${price}`;
+      return `$${price}`;
     }
     return price;
   };

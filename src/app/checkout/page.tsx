@@ -151,7 +151,7 @@ function BtcPaymentPanel({
                 ₿ {btcAmount.toFixed(8)}
               </p>
               <p className="text-sm text-gray-500 mt-0.5">
-                ≈ €{grandTotal.toFixed(2)} &nbsp;·&nbsp; 1 BTC = €{btcRate?.toLocaleString()}
+                ≈ ${grandTotal.toFixed(2)} &nbsp;·&nbsp; 1 BTC = ${btcRate?.toLocaleString()}
               </p>
               <div className="flex items-center gap-1.5 mt-2">
                 <span className="text-xs text-gray-400">Rate updated: {lastUpdated}</span>
@@ -163,7 +163,7 @@ function BtcPaymentPanel({
           ) : (
             <div>
               <p className="text-sm text-red-500 mb-1">Could not fetch live rate</p>
-              <p className="text-xs text-gray-500">Please check the current rate and send the equivalent of <strong>€{grandTotal.toFixed(2)}</strong></p>
+              <p className="text-xs text-gray-500">Please check the current rate and send the equivalent of <strong>${grandTotal.toFixed(2)}</strong></p>
               <button onClick={fetchRate} className="mt-2 flex items-center gap-1 text-xs text-[#F7931A] hover:underline">
                 <RefreshCw className="w-3 h-3" /> Retry
               </button>
@@ -219,7 +219,7 @@ function BtcPaymentPanel({
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2 text-sm text-amber-800">
         <p className="font-bold flex items-center gap-1.5">⚠️ Important Instructions</p>
         <ol className="list-decimal list-inside space-y-1 text-xs text-amber-700">
-          <li>Send <strong>exactly the BTC amount shown above</strong> (or the €{grandTotal.toFixed(2)} equivalent).</li>
+          <li>Send <strong>exactly the BTC amount shown above</strong> (or the ${grandTotal.toFixed(2)} equivalent).</li>
           <li>Only send <strong>Bitcoin (BTC)</strong> — do not send BCH, BSV or other coins.</li>
           <li>After sending, click <strong>"I've Sent the Payment"</strong> below to confirm your order via WhatsApp.</li>
           <li>Your order is shipped once we confirm receipt on the blockchain.</li>
@@ -271,7 +271,7 @@ function OrderSummary({ items, totalPrice, shipping, grandTotal }: {
                 <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
               </div>
               <p className="text-sm font-bold text-emerald-600 flex-shrink-0">
-                €{(item.price * item.quantity).toFixed(2)}
+                ${(item.price * item.quantity).toFixed(2)}
               </p>
             </div>
           ))}
@@ -279,15 +279,15 @@ function OrderSummary({ items, totalPrice, shipping, grandTotal }: {
         <div className="p-4 space-y-2.5">
           <div className="flex justify-between text-sm text-gray-600">
             <span>Subtotal</span>
-            <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+            <span className="font-semibold">${totalPrice.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm text-gray-600">
             <span className="flex items-center gap-1"><Truck className="w-3.5 h-3.5" /> Shipping (10%)</span>
-            <span className="font-semibold">€{shipping.toFixed(2)}</span>
+            <span className="font-semibold">${shipping.toFixed(2)}</span>
           </div>
           <div className="border-t border-gray-100 pt-2.5 flex justify-between items-center">
             <span className="font-bold text-[#0B132B]">Total</span>
-            <span className="text-xl font-bold text-emerald-600">€{grandTotal.toFixed(2)}</span>
+            <span className="text-xl font-bold text-emerald-600">${grandTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
   const handleConfirmPayment = () => {
     setSubmitting(true);
     const orderLines = items
-      .map((i) => `  - ${i.name} x${i.quantity} -- €${(i.price * i.quantity).toFixed(2)}`)
+      .map((i) => `  - ${i.name} x${i.quantity} -- $${(i.price * i.quantity).toFixed(2)}`)
       .join('\n');
     const isBtc = form.paymentMethod === 'bitcoin';
     const header = isBtc
@@ -385,9 +385,9 @@ export default function CheckoutPage() {
       '🛒 Order Items',
       orderLines,
       '',
-      `Subtotal: €${totalPrice.toFixed(2)}`,
-      `Shipping (10%): €${shipping.toFixed(2)}`,
-      `Grand Total: €${grandTotal.toFixed(2)}`,
+      `Subtotal: $${totalPrice.toFixed(2)}`,
+      `Shipping (10%): $${shipping.toFixed(2)}`,
+      `Grand Total: $${grandTotal.toFixed(2)}`,
       '',
       ...paymentLines,
       form.notes ? `\n📝 Notes: ${form.notes}` : '',
@@ -652,7 +652,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="text-emerald-500 font-bold mt-0.5">3.</span>
-                          <p className="text-gray-700">Complete your transfer for <strong>€{grandTotal.toFixed(2)}</strong> and send us the payment reference.</p>
+                          <p className="text-gray-700">Complete your transfer for <strong>${grandTotal.toFixed(2)}</strong> and send us the payment reference.</p>
                         </div>
                         <div className="flex items-start gap-2">
                           <span className="text-emerald-500 font-bold mt-0.5">4.</span>

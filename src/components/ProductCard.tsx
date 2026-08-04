@@ -67,7 +67,7 @@ export default function ProductCard({ id, title, price, category, tag, image_url
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{title}</h3>
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-gray-500 capitalize">{category}</span>
-          <span className="text-2xl font-bold text-primary">€{price.toFixed(2)}</span>
+          <span className="text-2xl font-bold text-primary">${price.toFixed(2)}</span>
         </div>
         <button
           onClick={handleAddToCart}

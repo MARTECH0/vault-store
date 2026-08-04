@@ -115,7 +115,7 @@ export default function CartDrawer() {
                         {item.name}
                       </h3>
                       <p className="text-sm font-bold text-emerald-600 mt-0.5">
-                        €{item.price.toFixed(2)}
+                        ${item.price.toFixed(2)}
                       </p>
                     </div>
 
@@ -163,7 +163,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between">
               <span className="text-base font-semibold text-gray-700">Subtotal</span>
               <span className="text-xl font-bold text-emerald-600">
-                €{totalPrice.toFixed(2)}
+                ${totalPrice.toFixed(2)}
               </span>
             </div>
 

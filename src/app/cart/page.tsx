@@ -116,8 +116,8 @@ export default function CartPage() {
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-[#0B132B] leading-snug line-clamp-2 mb-1">{item.name}</h3>
-                      <p className="text-emerald-600 font-bold text-lg">€{item.price.toFixed(2)}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">Subtotal: €{(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-emerald-600 font-bold text-lg">${item.price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Subtotal: ${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
 
                     <div className="flex flex-col items-end gap-3 flex-shrink-0">
@@ -172,7 +172,7 @@ export default function CartPage() {
                           {item.name} <span className="text-gray-400">x{item.quantity}</span>
                         </span>
                         <span className="font-semibold text-[#0B132B] flex-shrink-0">
-                          €{(item.price * item.quantity).toFixed(2)}
+                          ${(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     ))}
@@ -181,19 +181,19 @@ export default function CartPage() {
                   <div className="p-5 space-y-3">
                     <div className="flex justify-between text-sm text-gray-600">
                       <span>Subtotal</span>
-                      <span className="font-semibold">€{totalPrice.toFixed(2)}</span>
+                      <span className="font-semibold">${totalPrice.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-gray-600">
                       <span className="flex items-center gap-1">
                         <Truck className="w-3.5 h-3.5" /> Shipping (10%)
                       </span>
                       <span className="font-semibold">
-                        €{shipping.toFixed(2)}
+                        ${shipping.toFixed(2)}
                       </span>
                     </div>
                     <div className="border-t border-gray-100 pt-3 flex justify-between items-center">
                       <span className="font-bold text-[#0B132B]">Total</span>
-                      <span className="text-2xl font-bold text-emerald-600">€{grandTotal.toFixed(2)}</span>
+                      <span className="text-2xl font-bold text-emerald-600">${grandTotal.toFixed(2)}</span>
                     </div>
                   </div>
 

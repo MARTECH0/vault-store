@@ -34,7 +34,7 @@ export default function Shop() {
   const [selectedPrice, setSelectedPrice] = useState('All Prices');
 
   const seriesOptions = ['All Series', '151', 'Black Bolt', 'White Flare', 'Prismatic', 'Stellar Crown', 'Surging Sparks'];
-  const priceOptions = ['All Prices', 'Under €100', '€100 - €200', '€200 - €500', 'Over €500'];
+  const priceOptions = ['All Prices', 'Under $100', '$100 - $200', '$200 - $500', 'Over $500'];
 
   useEffect(() => {
     async function fetchProducts() {
@@ -83,10 +83,10 @@ export default function Shop() {
       filtered = filtered.filter(product => {
         const price = product.price;
         switch (selectedPrice) {
-          case 'Under €100': return price < 100;
-          case '€100 - €200': return price >= 100 && price <= 200;
-          case '€200 - €500': return price > 200 && price <= 500;
-          case 'Over €500': return price > 500;
+          case 'Under $100': return price < 100;
+          case '$100 - $200': return price >= 100 && price <= 200;
+          case '$200 - $500': return price > 200 && price <= 500;
+          case 'Over $500': return price > 500;
           default: return true;
         }
       });
@@ -248,7 +248,7 @@ export default function Shop() {
                     <p className="text-gray-500 text-sm mb-3 line-clamp-2">
                       {product.description || `Authentic ${product.category} product sourced directly from Japan.`}
                     </p>
-                    <p className="text-xl font-bold text-gray-900 mb-4">€{product.price}</p>
+                    <p className="text-xl font-bold text-gray-900 mb-4">${product.price}</p>
 
                     {/* Card Actions */}
                     <div className="flex gap-2">
